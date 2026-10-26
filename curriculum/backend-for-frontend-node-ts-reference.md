@@ -144,36 +144,45 @@ https://github.com/pavel-skripko-innowise/nestjs-monolith-boilerplate
 
 ## 1.8 Practical Node.js / TypeScript Stack for This Course
 
-A good focused stack for this course is:
+Each row names a job that a backend needs. The middle column is the tool this course uses. Learn one tool per row first; the alternatives can wait.
 
-| Area              | Recommended Option                                                  |
-| ----------------- | ------------------------------------------------------------------- |
-| Runtime           | Node.js 26 LTS (from 2026-10-28)                                                         |
-| Language          | TypeScript 5.x (boilerplate); 7.x is the current major                                                          |
-| API framework     | NestJS 11 (boilerplate); 12 is current and ESM-only                                                              |
-| HTTP layer        | Express 5 or Fastify 5 through NestJS                                   |
-| Database          | PostgreSQL 18                                                          |
-| ORM / query layer | TypeORM 0.3 (boilerplate) or Prisma 7                                                   |
-| Migrations        | Prisma Migrate or TypeORM migrations                                |
-| Validation        | `class-validator` + `class-transformer` in NestJS, or Zod           |
-| Auth              | JWT access/refresh cookies, `passport-jwt` if using NestJS/Passport |
-| Background jobs   | Database-backed jobs, or BullMQ 6 with Redis                          |
-| Object storage    | S3-compatible storage using AWS SDK v3                              |
-| Logging           | Pino 10, `nestjs-pino`, or NestJS Logger with structured logs          |
-| Observability     | OpenTelemetry SDK + OTLP Collector                                  |
-| Testing           | Jest 30 (boilerplate) or Vitest, Supertest                                           |
+| Job | Tool in this course | What it does |
+| --- | --- | --- |
+| Language | TypeScript | JavaScript with types. The `tsc` compiler checks the types before the code runs. |
+| Runtime | Node.js (current LTS) | Runs JavaScript on the server, outside the browser. |
+| Packages | npm | Installs the libraries listed in `package.json` and runs the project scripts. |
+| API framework | NestJS | Organizes the code into modules, controllers and services, and passes dependencies in (dependency injection). |
+| HTTP layer | Express or Fastify, under NestJS | Receives HTTP requests and runs the middleware chain. You rarely call them directly in this course. |
+| Configuration | `@nestjs/config` | Reads settings from environment variables. Secrets never go into the code. |
+| Database | PostgreSQL | The relational database and the source of truth. |
+| Database access | TypeORM (the boilerplate's ORM), or Prisma | Maps tables to classes or typed client calls, and runs parameterized SQL. |
+| Migrations | TypeORM migrations, or Prisma Migrate | Versioned schema changes, stored in the repository. |
+| Validation | `class-validator` and `class-transformer`, or Zod | Checks request bodies against DTOs before the handler runs. |
+| Auth | JWT in access and refresh cookies, with `passport-jwt` if you use Passport | Identifies the user on each request. |
+| Background jobs | Database-backed jobs, or BullMQ with Redis | Runs slow work after the response is sent, with retries. |
+| Object storage | AWS SDK for S3 | Stores files in an S3-compatible bucket. |
+| Rate limiting | `@nestjs/throttler` | Limits how often one client can call an endpoint. |
+| Health checks | `@nestjs/terminus` | Reports whether the app and its database respond. |
+| Logging | Pino, with `nestjs-pino` or the NestJS Logger | Writes structured JSON logs. |
+| Tracing | OpenTelemetry SDK, sent to an OTLP Collector | Shows where the time goes across one request. |
+| Tests | Jest and Supertest, or Vitest | Unit tests, and HTTP tests against the running app. |
+| Lint and format | ESLint and Prettier | Finds code problems and formats the code. |
 
-Versions checked on 2026-10-26. Check the release notes before you start, because these change:
-
-- Node.js: 26 becomes LTS on 2026-10-28. Node 24 is in maintenance until 2028-04-30, and Node 22 until 2027-04-30. Node 20 reached end-of-life on 2026-04-30.
-- NestJS: the boilerplate uses 11. NestJS 12 is the current major and ships ESM-only packages. The OpenTelemetry NestJS instrumentation does not support it yet (see 7.13).
-- TypeORM: the boilerplate uses 0.3. TypeORM 1.x is the current release line.
-- Prisma: 7 is the current stable major. Prisma 8 is still a release candidate.
-- TypeScript: the boilerplate uses 5.x. TypeScript 7 is the current major. It does not load `@types` packages automatically, so set `"types": ["node"]` in `tsconfig.json`.
-- Express 5, Fastify 5, Pino 10 and BullMQ 6 are the current majors.
-- PostgreSQL 18 is the current stable major. PostgreSQL 19 is in beta and release-candidate testing.
+If you know Angular, NestJS will look familiar. It also uses modules, decorators and dependency injection, but the code runs on the server.
 
 Important: keep the stack simple enough to explain every part.
+
+---
+
+## 1.9 What Changes for a Frontend Developer
+
+- Server code and its secrets (database passwords, signing keys) never reach the browser. Keep them out of frontend code.
+- There is no `window` or `document` on the server. Outgoing HTTP calls use `fetch`, which Node.js has built in.
+- Any client can send any request. Validate every request body on the server, even when the frontend already validates the form.
+- Keep state in PostgreSQL, not in process memory. Several copies of the server can run at once, and each one sees only its own memory.
+- Requests can repeat or overlap: a retry, a double click, two tabs. Make every write safe to repeat (section 5).
+- The server sets cookies, and the browser sends them back with each matching request. CORS only controls which web pages may read responses to browser calls. It does not stop other clients, such as `curl`, from calling the API.
+- `console.log` is not enough once other people use the app. Use structured logs and traces (section 7).
 
 ---
 
@@ -880,7 +889,7 @@ Common Node.js / TypeScript options:
 - Drizzle,
 - Kysely.
 
-The course boilerplate uses TypeORM 0.3, so TypeORM is the default ORM for this course. Prisma 7 is the other common choice. Section 2.40 shows both.
+The course boilerplate uses TypeORM, so TypeORM is the default ORM for this course. Prisma is the other common choice. Section 2.40 shows both.
 
 During development, inspect the generated SQL in the query log.
 
@@ -1145,7 +1154,7 @@ Check the error code, not the message text:
 
 ## 2.44 Practice
 
-Use a local PostgreSQL 18 server and `psql`. Run the SQL in a scratch database, not the one the course app uses.
+Use a local PostgreSQL server and `psql`. Run the SQL in a scratch database, not the one the course app uses.
 
 1. Create `user_roles (user_id uuid, role_id uuid, PRIMARY KEY (user_id, role_id))` and insert the same pair twice. Expected result: the second `INSERT` fails with SQLSTATE `23505` (`unique_violation`).
 2. Create `deletion_challenges (id serial PRIMARY KEY, user_id uuid NOT NULL, consumed_at timestamptz)` with the partial unique index from 2.32. Insert two unconsumed rows for one user: the second insert fails with `23505`. Set `consumed_at = now()` on the first row and insert again: the insert succeeds.
@@ -1166,13 +1175,7 @@ It is a graphical language for describing:
 - system structure,
 - system behavior.
 
-Current relevant version:
-
-```text
-UML 2.5.1
-```
-
-UML 2.5.1 (December 2017) is the latest version published by the OMG (Object Management Group), the standards body behind UML.
+UML is a standard notation. The OMG (Object Management Group), the standards body behind UML, publishes its specification.
 
 Each diagram shows one aspect of a system:
 
@@ -1229,7 +1232,7 @@ Database table schemas are usually represented with ER diagrams, not UML class d
 | What parts make up the system and what interfaces connect them?               | Component diagram  | Approximate with `flowchart`                              |
 | Where is everything deployed?                                                 | Deployment diagram | Approximate with `flowchart`                              |
 
-Mermaid has no stable use case or activity diagram type. Two beta types come close: `usecase-beta` (Mermaid 12.0 and later) and `swimlane-beta` (Mermaid 11.16 and later; flowchart-style syntax whose top-level subgraphs become lanes). Beta syntax can change, and a viewer that bundles an older Mermaid cannot render it. The examples in this section use plain `flowchart`.
+Mermaid has no stable use case or activity diagram type. Two beta types come close: `usecase-beta` and `swimlane-beta` (flowchart-style syntax whose top-level subgraphs become lanes). Beta syntax can change, and a viewer that bundles an older Mermaid cannot render it. The examples in this section use plain `flowchart`.
 
 ---
 
@@ -1655,7 +1658,7 @@ Notation:
 Mermaid has no activity diagram type, so `flowchart` is only an approximation:
 
 - a decision is a `{}` diamond, and start and end are circles;
-- a fork or join bar is the node shape `A@{ shape: fork }` (Mermaid 11.3 and later);
+- a fork or join bar is the node shape `A@{ shape: fork }` ;
 - swimlanes can be approximated with `subgraph`, or with the beta `swimlane-beta` type.
 
 ---
@@ -1794,15 +1797,15 @@ Benefits:
 
 ## 3.17 Useful UML Links
 
-- [OMG UML 2.5.1 Specification](https://www.omg.org/spec/UML/2.5.1/) — the official specification.
+- [OMG UML Specification](https://www.omg.org/spec/UML/2.5.1/) — the official specification.
 - [UML Diagrams Reference](https://www.uml-diagrams.org/) — reference for diagram kinds and notation.
 - [Martin Fowler: UML Distilled](https://martinfowler.com/books/uml.html) — practical use of UML.
 - [Mermaid Sequence Diagrams](https://mermaid.js.org/syntax/sequenceDiagram.html) — participants, messages, fragments.
 - [Mermaid Class Diagrams](https://mermaid.js.org/syntax/classDiagram.html) — classes, relationships, multiplicity.
 - [Mermaid State Diagrams](https://mermaid.js.org/syntax/stateDiagram.html) — states and transitions.
 - [Mermaid Flowcharts](https://mermaid.js.org/syntax/flowchart.html) — shapes used to approximate diagrams that Mermaid lacks.
-- [Mermaid Use Case Diagrams](https://mermaid.js.org/syntax/usecase.html) — the beta `usecase-beta` type, Mermaid 12.0 and later.
-- [Mermaid Swimlanes](https://mermaid.js.org/syntax/swimlanes.html) — the beta `swimlane-beta` type, Mermaid 11.16 and later.
+- [Mermaid Use Case Diagrams](https://mermaid.js.org/syntax/usecase.html) — the beta `usecase-beta` type.
+- [Mermaid Swimlanes](https://mermaid.js.org/syntax/swimlanes.html) — the beta `swimlane-beta` type.
 - [Mermaid Live Editor](https://mermaid.live/) — check a diagram in the browser.
 - [PlantUML](https://plantuml.com/) — many UML diagram types in text format, including use case, component, deployment and activity diagrams.
 
@@ -3235,7 +3238,7 @@ await queue.add(
 );
 ```
 
-BullMQ 6 rejects a custom job ID that contains a colon (`Custom Id cannot contain :`), so the example uses a hyphen.
+BullMQ rejects a custom job ID that contains a colon (`Custom Id cannot contain :`), so the example uses a hyphen.
 
 But remember: BullMQ job ID alone does not replace database-level correctness.
 
@@ -3742,7 +3745,7 @@ If authentication returns `401` and does not call `next`, the handler is not exe
 
 But the outer logging layer still sees the final status.
 
-If the handler throws, Express passes the error to the next error-handling middleware. That middleware has four arguments and is registered after the routes (section 6.10). If an async handler rejects, Express 5 passes the rejection to the same middleware. In NestJS, an exception filter handles the error instead.
+If the handler throws, Express passes the error to the next error-handling middleware. That middleware has four arguments and is registered after the routes (section 6.10). If an async handler rejects, modern Express passes the rejection to the same middleware without extra code. In NestJS, an exception filter handles the error instead.
 
 ---
 
@@ -4345,7 +4348,7 @@ deployment.environment.name
 cloud.region
 ```
 
-Names follow the OpenTelemetry semantic conventions. `deployment.environment` is deprecated; use `deployment.environment.name`. `cloud.region` is still a development-stage convention.
+Names follow the OpenTelemetry semantic conventions. Use `deployment.environment.name` for the environment. Older tutorials use `deployment.environment`.
 
 They are required for filtering and for preventing two applications from appearing as one service on a dashboard.
 
@@ -4379,7 +4382,7 @@ url.path = /orders/8f1c...
 
 The bad example creates millions of time series and is dangerous as a metric label.
 
-The names above are the stable OpenTelemetry HTTP attributes. The older names `http.method`, `http.status_code` and `http.target` are deprecated.
+Older tutorials use `http.status_code` and `http.target`. Use the names above.
 
 ---
 
@@ -4513,7 +4516,7 @@ Run:
 ```bash
 docker run --rm -p 4317:4317 -p 4318:4318 \
   -v "${PWD}/otel-collector-config.yaml:/etc/otelcol/config.yaml" \
-  otel/opentelemetry-collector:0.163.2
+  otel/opentelemetry-collector
 ```
 
 In PowerShell:
@@ -4521,7 +4524,7 @@ In PowerShell:
 ```powershell
 docker run --rm -p 4317:4317 -p 4318:4318 `
   -v "${PWD}/otel-collector-config.yaml:/etc/otelcol/config.yaml" `
-  otel/opentelemetry-collector:0.163.2
+  otel/opentelemetry-collector
 ```
 
 Set application endpoint:
@@ -4546,7 +4549,7 @@ Later replace the Collector exporter with a real production backend.
 
 ## 7.12 Node.js / NestJS OpenTelemetry Packages
 
-Requires Node.js 22.15 or newer. Versions checked on 2026-10-26: `@opentelemetry/sdk-node` 0.300.0 (OpenTelemetry JS 3.x), `@opentelemetry/auto-instrumentations-node` 0.82.0, `@opentelemetry/api` 1.10.0 and `@opentelemetry/sdk-metrics` 3.0.0.
+Use the current Node.js LTS release.
 
 Install (one line, works in bash and PowerShell):
 
@@ -4601,7 +4604,7 @@ Auto-instrumentations create spans for:
 - common database drivers,
 - Nest core where supported.
 
-This course uses NestJS 11 (the boilerplate). Keep it on 11 unless your mentor agrees to move. `@opentelemetry/instrumentation-nestjs-core` 0.71.0 supports `@nestjs/core` below 12. On NestJS 12.2.0 (tested), no `Create Nest App`, controller or handler spans appear. The HTTP span is still created, but it has no `http.route` unless the ESM hook is loaded (see 7.14). Section 7.15 shows how to add the business span by hand.
+This course uses the NestJS version from the boilerplate. Keep that major when you add OpenTelemetry. The newest NestJS major is ESM-only, and the OpenTelemetry NestJS instrumentation does not support it yet. On the newest major, the framework spans (`Create Nest App`, controllers and handlers) do not appear. The HTTP span is still created, but it has no `http.route` unless the ESM hook is loaded (see 7.14). Section 7.15 shows how to add the business span by hand.
 
 ---
 
@@ -4618,7 +4621,7 @@ It patches them at import time.
 
 Therefore, run the compiled NestJS application through preload instead of importing the SDK after `NestFactory.create()`.
 
-For an ESM build (NestJS 12 is ESM-only):
+For an ESM build:
 
 ```json
 {
@@ -4628,7 +4631,7 @@ For an ESM build (NestJS 12 is ESM-only):
 }
 ```
 
-Without the loader hook, Express is not patched in an ESM app. The server span is then named `GET` and has no `http.route` (tested).
+Without the loader hook, Express is not patched in an ESM app. The server span is then named `GET` and has no `http.route`.
 
 For CommonJS (the course boilerplate):
 
