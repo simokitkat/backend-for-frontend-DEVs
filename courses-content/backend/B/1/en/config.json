@@ -1,0 +1,22 @@
+{
+  "title": "Back End · Group B1",
+  "description": "Microservice architecture: decomposition, service communication, data consistency, fault tolerance, and deployment.",
+  "lessons": [
+    { "file": "0.0 Вводная часть.md" }
+  ],
+  "modules": [
+    {
+      "title": "Theory",
+      "lessons": [
+        { "file": "0.1 Декомпозиция на микросервисы.md" },
+        { "file": "0.2 Синхронное взаимодействие.md" },
+        { "file": "0.3 Асинхронное взаимодействие.md" },
+        { "file": "0.4 Согласованность данных.md" },
+        { "file": "0.5 API Gateway и безопасность.md" },
+        { "file": "0.6 Отказоустойчивость.md" },
+        { "file": "0.7 Контракты и тестирование.md" },
+        { "file": "0.8 Контейнеризация и развёртывание.md" }
+      ]
+    }
+  ]
+}
