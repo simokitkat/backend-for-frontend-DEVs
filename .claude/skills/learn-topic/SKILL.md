@@ -44,15 +44,16 @@ File: `my-learning/<course-number>-<english-kebab-topic>.md`, for example `my-le
 - Use plain, simple English with short sentences and paragraphs. Define each term the first time it appears, and **bold** it.
 - Write for an absolute beginner in backend. Assume no backend knowledge, but do assume solid JS/TS, React, and browser knowledge. Easy to read must not mean incomplete: by the end, the learner should know everything they need on the topic for Node.js/TS + NestJS.
 - Bridge from the frontend where the analogy is accurate: React component tree ↔ module/DI tree, fetch ↔ the request the server receives, browser cookies, form validation ↔ server validation, npm. Say where an analogy breaks down.
-- Teach the topic; don't translate the course text section by section. Cover everything the course file covers, then go deeper wherever a beginner would get stuck.
+- Teach the topic; don't translate the course text section by section. Cover everything the course file covers, then go deeper wherever a beginner would get stuck. Skip extras that neither the course nor the project needs.
 
 **Structure** (adapt the headings to the topic, but keep this order)
-1. Title, a one-line summary, and a link to the course source file.
+1. Title, a one-line summary, a link to the course source file, and the total study time.
 2. **What you'll learn**: a numbered roadmap of the sections, so the learner sees the build-up before starting.
 2b. **How to learn this guide**: how to approach studying this specific doc.
-   - Split it into study sessions (a table of what to read and what to *do* in each, about 1–1.5 hours each).
+   - Plan **one session per day**. Give a table with the day, what to read, the course-file topic it covers, and a **realistic time**: careful reading, running every example, the exercise, and that day's self-check questions, usually 1.5–2.5 hours. Size the sessions to fit one day: follow the course file's topics, merging topics while the day still fits about 2.5 hours and splitting ones that are too big. Use as few days as that allows, because there are many topics to get through.
+   - For each day, give a time breakdown, a hands-on exercise (runnable in the local playground where the topic allows, using only what the docs have taught), and the numbers of the self-check questions that belong to it. A few days after the last session, the learner answers all of them without scrolling up.
+   - If the doc's order differs from the course file's, say where and why.
    - Give a per-section routine: skim, run or try, explain it back, move on only when it's clear.
-   - Add hands-on exercises tied to each session, runnable in a local playground where the topic allows.
    - Say how to use the doc after the first pass: the cheat sheet as a reference, self-check questions again later, and which project tasks to revisit it for.
 3. **Before we start** (only if needed): primers on prerequisites not covered by earlier docs, plus links to the earlier docs this one builds on.
 4. **Why this matters**: the problem this solves and where it shows up in the course project.
